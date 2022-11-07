@@ -1,0 +1,62 @@
+<!-- Develop a JS program to read the given XML file and display its data -->
+<html>
+<head>
+
+<title>Project 2 | Question 1</title>
+<h3>Project by Atharva Oza</h3>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    fetch('Country.xml').then(function(res){
+        console.log(res);
+        return(res.text());
+    })
+    .then(function(data){
+        let parser = new DOMParser(), 
+        xmlDoc = parser.parseFromString(data, 'text/xml');
+        console.log(xmlDoc);
+
+        cname = xmlDoc.getElementsByTagName('country');
+
+        let output = "<table border = 2> <tr> <th> Country </th> <th> Capital </th> <th> Government </th> <th> Total GDP </th> <th> Population in 2011 </th> </tr>";
+
+        for(let i = 0; i < cname.length; i++)
+        {
+            output += "<tr>";
+            output += "<td>"+ cname[i].getElementsByTagName('name')[0].innerHTML + "</td>";
+            output += "<td>"+ cname[i].getAttribute('capital') + "</td>";
+
+            if(cname[i].getElementsByTagName('government')[0] != null)
+            {
+                output += "<td>"+ cname[i].getElementsByTagName('government')[0].innerHTML + "</td>";
+            }
+            else{
+                    output += "<td> No Data</td>"; 
+                }
+
+            if(cname[i].getElementsByTagName('gdp_total')[0] != null)
+            {
+                output += "<td>"+ cname[i].getElementsByTagName('gdp_total')[0].innerHTML + "</td>";
+            }
+            else{
+                    output += "<td> No Data</td>"; 
+                }
+
+            for(let j = 0; j < cname[i].getElementsByTagName('population').length; j++)
+            {
+                if(cname[i].getElementsByTagName('population')[j].getAttribute('year') == '2011')
+                {
+                    output += "<td>" + cname[i].getElementsByTagName('population')[j].innerHTML + "</td>";
+                    break;
+                }
+            }
+            output += "</tr>";
+        }
+        output += "</table>";
+        document.getElementById("demo").innerHTML = output;
+    })
+</script>
+</head>
+<body >
+<p id="demo"></p>
+</body>
+</html>
