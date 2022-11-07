@@ -1,0 +1,49 @@
+<!-- Develop a web application which helps user to know the currency information of the country -->
+<html>
+<head>
+
+<title>Project 2 | Question 2</title>
+<h3>Project by Atharva Oza</h3>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+   
+        $("#find").click(function() {
+            $.ajax({
+            type: 'get',
+            url:"country-json.json",
+            dataType: 'json',
+            success: function(data){
+                var output = '';
+                var Cname = $("#cname").val();
+                $.each(data, function(index, value){
+                    if( Cname == value.name.common)
+                    { 
+                        output += "<p>Capital: " + value.capital + "</p>";
+                        output += "<p>Alpha3 code: " + value.cca3 + "</p>";
+                        let curr = value.currencies;
+                        $.each(curr, (ind, val) => {
+                            output += "<p>Currency code: " + ind + "</p>";
+                            output += "<p>Currency name: " + val.name + "</p>";
+                            output += "<p>Symbol: " + val.symbol + "</p>";
+                        })
+                        $("#demo").append(output);
+                    }
+                    
+                });
+                console.log(data)
+                },
+            error: function(){ alert('Error!')}
+            });
+        });
+        
+    });
+</script>
+</head>
+
+<body >
+    Country : <input type="text" id="cname">
+    <input type="button" value="Find Country" id="find">
+    <p id="demo"></p>
+</body>
+</html>
