@@ -1,0 +1,152 @@
+<!-- Using restcountries API data, develop an HTML page which takes country name from user and displays its data -->
+<html>
+<head>
+
+<title>Project 2 | Question 4</title>
+
+<style>
+    th {
+        background-color: bisque;
+        text-align: center;
+        border: 1px solid black;
+    }
+
+    td {
+        color: rgb(129, 43, 115);
+        text-align: center;
+        border: 1px solid black;
+    }
+</style>
+
+<h4 style="text-align:left">Project by Atharva Oza</h4>
+<h2 style="color:steelblue">Exchange Rate</h2>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    function fetchExternalData ()  
+    {
+        return Promise.all([
+            fetch("https://restcountries.com/v3.1/all"),
+            fetch("https://api.currencyapi.com/v3/latest?apikey=QuAFNCvOEenTvDg1eMUJhq1zA2L3ucA4LO3UkJwh"),
+            fetch("Country.json")
+            
+        ]).then(results => {
+            return Promise.all(results.map(result => result.json()));
+        })
+    
+    .then(result => {
+        console.log(result);
+        txt = document.getElementById("cname").value;
+
+        let output = "<table border='1'  style='text-align: center'><tr><th style=background-color:#C0C0C0>Country</th><th style=background-color:#C0C0C0>Population</th><th style=background-color:#C0C0C0>Native Name</th><th style=background-color:#C0C0C0>Timezones</th><th style=background-color:#C0C0C0>Currency Code</th><th style=background-color:#C0C0C0>Currency Name</th><th style=background-color:#C0C0C0>Currency Symbol</th><th style=background-color:#C0C0C0>Currency Exchange Rate(USD)</th><th style=background-color:#C0C0C0>Flag</th></tr>";
+
+        for(let i = 0; i < result[0].length; i++)
+        {
+            if( txt == result[0][i].name.common)
+            {
+                output += "<tr>";
+                output += "<td>" + result[0][i].name.common + "</td>"; 
+                output += "<td>" + result[0][i].population + "</td>";
+
+                let off = result[0][i].name.nativeName;
+                output += "<td>";
+                $.each(off, (ind, val) => {
+                    output += ind + "<br>" + val.official + "<br><br>";
+                })
+                output += "</td>";
+
+                output += "<td>";
+                for(let j=0; j < result[0][i].timezones.length; j++)
+                {
+                    output += result[0][i].timezones[j] + "<br>";
+                }
+                output += "</td>";
+
+                let curr = result[0][i].currencies;
+                $.each(curr, (ind, val) => {
+                    output += "<td>" + ind + "</td>";
+                    output += "<td>" + val.name + "</td>";
+                    output += "<td>" + val.symbol + "</td>";
+                    output += "<td>" + result[1].data[ind].value + "</td>";
+                })
+                output += "<td><img style='width:50%;' class='w-100' src='" + result[0][i].flags.png + "' alt='Flag'/></td></tr></table>";
+
+                document.getElementById("demo").innerHTML = JSON.stringify(output);   
+            }
+        }
+
+        let table2 = "<table border='1'  style='text-align: center'>";
+
+        for(let i = 0; i < result[2].mondial.country.length; i++)
+        {
+            if(txt == result[2].mondial.country[i].name)
+            {
+                //checking whether country has provinces or not
+                if (Array.isArray(result[2].mondial.country[i].province)) 
+                {
+                    //loop for provinces
+                    for (var k = 0; k < result[2].mondial.country[i].province.length; k++) 
+                    {
+                        //print province name one by one
+                        table2 += "<tr><th colspan=8>Province: " + result[2].mondial.country[i].province[k].name + "</th></tr>";
+                        //whether this province has cities or not
+                        if (Array.isArray(result[2].mondial.country[i].province[k].city))
+                        {
+                            //printing headers for cities
+                            table2 += "<tr><th>City Name</th><th>City Local Name</th><th>population in 2011</th></tr>";
+                            //loop for cities
+                            for (var m = 0; m < result[2].mondial.country[i].province[k].city.length; m++)
+                            {
+                                //printing name and local name
+                                table2 += "<tr><td>" + result[2].mondial.country[i].province[k].city[m]['-id'] + "</td>";
+                                table2 += "<td>" + result[2].mondial.country[i].province[k].city[m].name + "</td>";
+                                //whether it has population or not
+                                if (Array.isArray(result[2].mondial.country[i].province[k].city[m].population))
+                                {
+                                    //loop for population
+                                    for (var l = 0; l < result[2].mondial.country[i].province[k].city[m].population.length; l++) {
+                                        //checking year of 2011
+                                        if (result[2].mondial.country[i].province[k].city[m].population[l]['-year'] == "2011") {
+                                            //print value of 2011
+                                            table2 += "<td>" + result[2].mondial.country[i].province[k].city[m].population[l]['#text'] + "</td></tr>";
+                                        }
+                                    }
+                                }
+                                else 
+                                {
+                                    table2 += "<td colspan = '" + 3 + "'>" + "No Data Available" + "</td>";
+                                }
+                            }
+                        }
+                        else  
+                        {
+                            table2 += "<td colspan = '" + 3 + "'>" + "No data available" + "</td>";
+                        }
+                    }
+                    table2 += "</table>";
+                }
+                else 
+                {
+                    table2 += "<td>" + "No provinces" + "</td>";
+                }
+                document.getElementById("t2").innerHTML = JSON.stringify(table2);
+            }
+        }  
+    })
+    .catch(console.error);
+};
+
+window.onload=function() {
+    let myButton = document.getElementById("find");
+    myButton.addEventListener('click', fetchExternalData);
+    }
+</script>
+</head>
+
+<body style="background-color: lemonchiffon; text-align: center;">
+    Country : <input type="text" id="cname">
+    <input type="button" value="Find Country" id="find">
+    <div id="demo" style="margin-left: 10%;"></div>
+    
+    <div id="t2" style="margin-left: 35%"></div>
+</body>
+</html>
