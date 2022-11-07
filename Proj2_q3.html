@@ -1,0 +1,60 @@
+<!-- Develop a web application which helps user to know the current currency exchange rate of country vs USD or EURO -->
+<html>
+<head>
+
+<title>Project 2 | Question 3</title>
+<h4 style="text-align:left">Project by Atharva Oza</h4>
+<h2 style="color:steelblue">Exchange Rate</h2>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    function fetchExternalData ()  {
+        return Promise.all([
+            fetch("country-json.json"),
+            fetch("https://api.currencyapi.com/v3/latest?apikey=QuAFNCvOEenTvDg1eMUJhq1zA2L3ucA4LO3UkJwh")
+        ]).then(results => {
+            return Promise.all(results.map(result => result.json()));
+        })
+    
+
+    // fetchExternalData()
+    .then(result => {
+        console.log(result);
+        txt = document.getElementById("cname").value;
+
+        let output = "<table border='1'><tr><th style=background-color:#C0C0C0>Country</th><th style=background-color:#C0C0C0>Capital</th><th style=background-color:#C0C0C0>Country Alpha3 Code</th><th style=background-color:#C0C0C0>Currency Code</th><th style=background-color:#C0C0C0>Currency Name</th><th style=background-color:#C0C0C0>Currency Symbol</th><th style=background-color:#C0C0C0>Currency Exchange Rate(USD)</th></tr>";
+
+        for(let i = 0; i < result[0].length; i++)
+        if( txt == result[0][i].name.common)
+            {
+                output += "<tr>";
+                output += "<td>" + result[0][i].name.common + "</td>"; 
+                output += "<td>" + result[0][i].capital + "</td>";
+                output += "<td>" + result[0][i].cca3 + "</td>";
+                let curr = result[0][i].currencies;
+                $.each(curr, (ind, val) => {
+                    output += "<td>" + ind + "</td>";
+                    output += "<td>" + val.name + "</td>";
+                    output += "<td>" + val.symbol + "</td>";
+                    output += "<td>" + result[1].data[ind].value + "</td></tr></table>";
+                })
+                document.getElementById("demo").innerHTML = JSON.stringify(output);
+            }
+        document.getElementById("demo").innerHTML = JSON.stringify(output);
+        
+    })
+    .catch(console.error);
+};
+
+window.onload=function() {
+    let myButton = document.getElementById("find");
+    myButton.addEventListener('click', fetchExternalData);
+    }
+</script>
+</head>
+
+<body style="background-color: lemonchiffon; text-align: center;">
+    Country : <input type="text" id="cname">
+    <input type="button" value="Find Country" id="find">
+    <div id="demo" style="margin-left: 20%;"></div>
+</body>
+</html>
